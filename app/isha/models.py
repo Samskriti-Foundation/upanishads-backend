@@ -1,5 +1,5 @@
-from sqlalchemy import Column, ForeignKey, Integer, String
-from sqlalchemy.orm import relationship
+from sqlalchemy import ForeignKey, Integer, String
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .database import Base
 
@@ -7,17 +7,17 @@ from .database import Base
 class Sutra(Base):
     __tablename__ = "sutras"
 
-    id = Column(Integer, primary_key=True, index=True)
-    number = Column(Integer, unique=True)
-    text = Column(String(1000), nullable=False, unique=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    number: Mapped[int] = mapped_column(Integer, unique=True)
+    text: Mapped[str] = mapped_column(String(1000), nullable=False, unique=True)
 
-    transliterations = relationship(
+    transliterations: Mapped[list["Transliteration"]] = relationship(
         "Transliteration", back_populates="sutra", cascade="all, delete-orphan"
     )
-    meanings = relationship(
+    meanings: Mapped[list["Meaning"]] = relationship(
         "Meaning", back_populates="sutra", cascade="all, delete-orphan"
     )
-    interpretations = relationship(
+    interpretations: Mapped[list["Interpretation"]] = relationship(
         "Interpretation", back_populates="sutra", cascade="all, delete-orphan"
     )
 
@@ -25,59 +25,59 @@ class Sutra(Base):
 class Transliteration(Base):
     __tablename__ = "transliterations"
 
-    id = Column(Integer, primary_key=True, index=True)
-    language = Column(String(50), nullable=False)
-    text = Column(String(1000), nullable=False)
-    sutra_id = Column(Integer, ForeignKey("sutras.id", ondelete="CASCADE"))
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    language: Mapped[str] = mapped_column(String(50), nullable=False)
+    text: Mapped[str] = mapped_column(String(1000), nullable=False)
+    sutra_id: Mapped[int] = mapped_column(ForeignKey("sutras.id", ondelete="CASCADE"))
 
-    sutra = relationship("Sutra", back_populates="transliterations")
+    sutra: Mapped["Sutra"] = relationship("Sutra", back_populates="transliterations")
 
 
 class Meaning(Base):
     __tablename__ = "meanings"
 
-    id = Column(Integer, primary_key=True, index=True)
-    language = Column(String(50), nullable=False)
-    text = Column(String(1000), nullable=False)
-    sutra_id = Column(Integer, ForeignKey("sutras.id", ondelete="CASCADE"))
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    language: Mapped[str] = mapped_column(String(50), nullable=False)
+    text: Mapped[str] = mapped_column(String(1000), nullable=False)
+    sutra_id: Mapped[int] = mapped_column(ForeignKey("sutras.id", ondelete="CASCADE"))
 
-    sutra = relationship("Sutra", back_populates="meanings")
+    sutra: Mapped["Sutra"] = relationship("Sutra", back_populates="meanings")
 
 
 class Interpretation(Base):
     __tablename__ = "interpretations"
 
-    id = Column(Integer, primary_key=True, index=True)
-    language = Column(String(50), nullable=False)
-    text = Column(String(1000), nullable=False)
-    philosophy_type = Column(String(50), nullable=False)
-    sutra_id = Column(Integer, ForeignKey("sutras.id", ondelete="CASCADE"))
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    language: Mapped[str] = mapped_column(String(50), nullable=False)
+    text: Mapped[str] = mapped_column(String(1000), nullable=False)
+    philosophy_type: Mapped[str] = mapped_column(String(50), nullable=False)
+    sutra_id: Mapped[int] = mapped_column(ForeignKey("sutras.id", ondelete="CASCADE"))
 
-    sutra = relationship("Sutra", back_populates="interpretations")
+    sutra: Mapped["Sutra"] = relationship("Sutra", back_populates="interpretations")
 
 
 class Word(Base):
     __tablename__ = "sanskrit_words"
 
-    id = Column(Integer, primary_key=True, index=True)
-    word = Column(String(50), unique=True, nullable=False)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    word: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
 
-    word_meanings = relationship(
+    word_meanings: Mapped[list["WordMeaning"]] = relationship(
         "WordMeaning", back_populates="word", cascade="all, delete-orphan"
     )
-    references = relationship(
+    references: Mapped[list["Reference"]] = relationship(
         "Reference", back_populates="word", cascade="all, delete-orphan"
     )
-    etymologies = relationship(
+    etymologies: Mapped[list["Etymology"]] = relationship(
         "Etymology", back_populates="word", cascade="all, delete-orphan"
     )
-    derivations = relationship(
+    derivations: Mapped[list["Derivation"]] = relationship(
         "Derivation", back_populates="word", cascade="all, delete-orphan"
     )
-    synonyms = relationship(
+    synonyms: Mapped[list["Synonym"]] = relationship(
         "Synonym", back_populates="word", cascade="all, delete-orphan"
     )
-    antonyms = relationship(
+    antonyms: Mapped[list["Antonym"]] = relationship(
         "Antonym", back_populates="word", cascade="all, delete-orphan"
     )
 
@@ -85,76 +85,76 @@ class Word(Base):
 class WordMeaning(Base):
     __tablename__ = "word_meanings"
 
-    id = Column(Integer, primary_key=True, index=True)
-    language = Column(String(50), nullable=False)
-    text = Column(String(1000), nullable=False)
-    sanskrit_word_id = Column(
-        Integer, ForeignKey("sanskrit_words.id", ondelete="CASCADE")
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    language: Mapped[str] = mapped_column(String(50), nullable=False)
+    text: Mapped[str] = mapped_column(String(1000), nullable=False)
+    sanskrit_word_id: Mapped[int] = mapped_column(
+        ForeignKey("sanskrit_words.id", ondelete="CASCADE")
     )
 
-    word = relationship("Word", back_populates="word_meanings")
+    word: Mapped["Word"] = relationship("Word", back_populates="word_meanings")
 
 
 class Reference(Base):
     __tablename__ = "references"
 
-    id = Column(Integer, primary_key=True, index=True)
-    language = Column(String(50), nullable=False)
-    text = Column(String(1000), nullable=False)
-    sanskrit_word_id = Column(
-        Integer, ForeignKey("sanskrit_words.id", ondelete="CASCADE")
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    language: Mapped[str] = mapped_column(String(50), nullable=False)
+    text: Mapped[str] = mapped_column(String(1000), nullable=False)
+    sanskrit_word_id: Mapped[int] = mapped_column(
+        ForeignKey("sanskrit_words.id", ondelete="CASCADE")
     )
 
-    word = relationship("Word", back_populates="word_meanings")
+    word: Mapped["Word"] = relationship("Word", back_populates="references")
 
 
 class Etymology(Base):
     __tablename__ = "etymologies"
 
-    id = Column(Integer, primary_key=True, index=True)
-    language = Column(String(50), nullable=False)
-    text = Column(String(1000), nullable=False)
-    sanskrit_word_id = Column(
-        Integer, ForeignKey("sanskrit_words.id", ondelete="CASCADE")
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    language: Mapped[str] = mapped_column(String(50), nullable=False)
+    text: Mapped[str] = mapped_column(String(1000), nullable=False)
+    sanskrit_word_id: Mapped[int] = mapped_column(
+        ForeignKey("sanskrit_words.id", ondelete="CASCADE")
     )
 
-    word = relationship("Word", back_populates="word_meanings")
+    word: Mapped["Word"] = relationship("Word", back_populates="etymologies")
 
 
 class Derivation(Base):
     __tablename__ = "derivations"
 
-    id = Column(Integer, primary_key=True, index=True)
-    language = Column(String(50), nullable=False)
-    text = Column(String(1000), nullable=False)
-    sanskrit_word_id = Column(
-        Integer, ForeignKey("sanskrit_words.id", ondelete="CASCADE")
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    language: Mapped[str] = mapped_column(String(50), nullable=False)
+    text: Mapped[str] = mapped_column(String(1000), nullable=False)
+    sanskrit_word_id: Mapped[int] = mapped_column(
+        ForeignKey("sanskrit_words.id", ondelete="CASCADE")
     )
 
-    word = relationship("Word", back_populates="word_meanings")
+    word: Mapped["Word"] = relationship("Word", back_populates="derivations")
 
 
-class Antonyms(Base):
-    __tablename__ = "antonyms"
-
-    id = Column(Integer, primary_key=True, index=True)
-    language = Column(String(50), nullable=False)
-    text = Column(String(1000), nullable=False)
-    sanskrit_word_id = Column(
-        Integer, ForeignKey("sanskrit_words.id", ondelete="CASCADE")
-    )
-
-    word = relationship("Word", back_populates="word_meanings")
-
-
-class Synonyms(Base):
+class Synonym(Base):
     __tablename__ = "synonyms"
 
-    id = Column(Integer, primary_key=True, index=True)
-    language = Column(String(50), nullable=False)
-    text = Column(String(1000), nullable=False)
-    sanskrit_word_id = Column(
-        Integer, ForeignKey("sanskrit_words.id", ondelete="CASCADE")
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    language: Mapped[str] = mapped_column(String(50), nullable=False)
+    text: Mapped[str] = mapped_column(String(1000), nullable=False)
+    sanskrit_word_id: Mapped[int] = mapped_column(
+        ForeignKey("sanskrit_words.id", ondelete="CASCADE")
     )
 
-    word = relationship("Word", back_populates="word_meanings")
+    word: Mapped["Word"] = relationship("Word", back_populates="synonyms")
+
+
+class Antonym(Base):
+    __tablename__ = "antonyms"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    language: Mapped[str] = mapped_column(String(50), nullable=False)
+    text: Mapped[str] = mapped_column(String(1000), nullable=False)
+    sanskrit_word_id: Mapped[int] = mapped_column(
+        ForeignKey("sanskrit_words.id", ondelete="CASCADE")
+    )
+
+    word: Mapped["Word"] = relationship("Word", back_populates="antonyms")

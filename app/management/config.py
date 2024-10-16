@@ -8,9 +8,15 @@ class Settings(BaseSettings):
     db_url: str
     test_db_url: str
 
+    # JWT Config
+    secret_key: str
+    algorithm: str
+    access_token_expire_minutes: int
+    refresh_token_expire_minutes: int
+
     # Configuration for Pydantic Settings
     # The env_file parameter specifies the .env file to load the environment variables from
-    model_config = SettingsConfigDict(env_file="isha.env")
+    model_config = SettingsConfigDict(env_file="management.env")
 
 
 # Instantiate the Settings class
