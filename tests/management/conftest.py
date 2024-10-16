@@ -1,3 +1,5 @@
+from pprint import pprint
+
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
@@ -33,13 +35,16 @@ def session():
 @pytest.fixture()
 def client(session):
     def override_get_db():
+        print("Override override")
         try:
             yield session
         finally:
             session.close()
 
     app.dependency_overrides[get_db] = override_get_db
+    pprint(app.__dict__)
     yield TestClient(app)
+    app.dependency_overrides.clear()
 
 
 @pytest.fixture
@@ -60,19 +65,26 @@ def test_admin(session):
     session.commit()
     session.refresh(new_user)
 
+    assert new_user.email == user_data["email"]
+    assert new_user.first_name == user_data["first_name"]
+    assert new_user.last_name == user_data["last_name"]
+    assert new_user.is_admin == user_data["is_admin"]
+
     return new_user
 
 
 @pytest.fixture
 def token_admin(test_admin):
     test_admin = test_admin.__dict__
-    return create_access_token({"user_id": test_admin["id"]})
+    return create_access_token(
+        {"user_id": test_admin["id"], "is_admin": test_admin["is_admin"]}
+    )
 
 
 @pytest.fixture
 def authorized_admin(client, token_admin):
     client.headers = {**client.headers, "Authorization": f"Bearer {token_admin}"}
-    return client
+    yield client
 
 
 @pytest.fixture
@@ -95,10 +107,10 @@ def test_user(client):
 
 @pytest.fixture
 def token(test_user):
-    return create_access_token({"user_id": test_user["id"]})
+    return create_access_token({"user_id": test_user["id"], "is_admin": "false"})
 
 
 @pytest.fixture
 def authorized_client(client, token):
-    client.headers = {**client.headers, "Authorization": f"Bearer {token}"}
+    client.headers = {**client.headers, "Authorization 123321": f"Bearer {token}"}
     return client

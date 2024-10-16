@@ -3,18 +3,17 @@ from pydantic import BaseModel, EmailStr
 
 class UserBase(BaseModel):
     first_name: str
-    last_name: str
-    email: EmailStr
-    phone_no: str
-    is_admin: bool
-
-
-class UserCreate(BaseModel):
-    first_name: str
     last_name: str | None = None
     email: EmailStr
     phone_no: str | None = None
+
+
+class UserCreate(UserBase):
     password: str
+
+
+class UserOut(UserBase):
+    is_admin: bool
 
 
 class ProjectBase(BaseModel):
@@ -48,4 +47,3 @@ class RefreshToken(BaseModel):
 class TokenData(BaseModel):
     user_id: int
     is_admin: bool
-

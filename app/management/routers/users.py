@@ -1,3 +1,5 @@
+from typing import List
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
@@ -8,7 +10,7 @@ from app.management.database import get_db
 router = APIRouter(prefix="/users", tags=["Users"])
 
 
-@router.get("/")
+@router.get("/", response_model=List[schemas.UserOut])
 def get_users(
     db: Session = Depends(get_db),
     current_admin: models.User = Depends(oauth2.get_current_admin),
@@ -17,7 +19,7 @@ def get_users(
     return users
 
 
-@router.get("/{user_id}")
+@router.get("/{user_id}", response_model=schemas.UserOut)
 def get_user(
     user_id: int,
     db: Session = Depends(get_db),
@@ -79,4 +81,3 @@ def delete_user(
 
     user_to_delete.delete()
     db.commit()
-

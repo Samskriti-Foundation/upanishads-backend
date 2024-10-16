@@ -20,9 +20,9 @@ def user_data():
 
 def test_create_user(authorized_admin, user_data):
     response = authorized_admin.post(
-        "/management/users", json=user_data(f"testuser@example.com")
+        "/management/users",
+        json=user_data(f"testuser@example.com"),
     )
-    pprint(response.json())
     assert response.status_code == 201
 
 
@@ -41,6 +41,12 @@ def test_create_user_duplicate_email(authorized_admin, user_data):
     assert (
         response.status_code == status.HTTP_400_BAD_REQUEST
     )  # Expecting a 400 or similar error
+
+
+def test_get_users(authorized_admin):
+    response = authorized_admin.get("/management/users/")
+    pprint(response.json())
+    assert response.status_code == 200
 
 
 def test_get_user_details(authorized_admin, test_user):

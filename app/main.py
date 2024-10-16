@@ -17,5 +17,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+@app.get("/healthz")
+def health_check():
+    return {"status": "available"}
+
+
 app.mount("/isha", isha)
 app.mount("/management", management)

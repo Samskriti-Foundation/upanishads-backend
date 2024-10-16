@@ -43,7 +43,7 @@ def verify_token(token: str, credentials_exception):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         user_id: int = payload.get("user_id")
-        is_admin: str = payload.get("is_admin")
+        is_admin: bool = payload.get("is_admin")
         exp: int = payload.get("exp")
 
         if is_admin is None or is_admin == "":
