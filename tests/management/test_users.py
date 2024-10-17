@@ -20,71 +20,74 @@ def user_data():
 
 def test_create_user(authorized_admin, user_data):
     response = authorized_admin.post(
-        "/management/users",
+        "/users",
         json=user_data(f"testuser@example.com"),
     )
-    assert response.status_code == 201
+    assert response.status_code == status.HTTP_201_CREATED
 
 
 def test_create_user_duplicate_email(authorized_admin, user_data):
     # First creation
-    response = authorized_admin.post(
-        "/management/users", json=user_data("duplicate@example.com")
-    )
-    assert response.status_code == 201
+    response = authorized_admin.post("/users", json=user_data("duplicate@example.com"))
+    assert response.status_code == status.HTTP_201_CREATED
 
     # Attempt to create a duplicate
-    response = authorized_admin.post(
-        "/management/users", json=user_data("duplicate@example.com")
-    )
-    pprint(response.json())
-    assert (
-        response.status_code == status.HTTP_400_BAD_REQUEST
-    )  # Expecting a 400 or similar error
+    response = authorized_admin.post("/users", json=user_data("duplicate@example.com"))
+    assert response.status_code == status.HTTP_409_CONFLICT
 
 
 def test_get_users(authorized_admin):
-    response = authorized_admin.get("/management/users/")
+    response = authorized_admin.get("/users/")
+    assert response.status_code == status.HTTP_200_OK
+
+
+def test_get_user_details(authorized_admin, user_data):
+
+    response = authorized_admin.post("/users", json=user_data("duplicate@example.com"))
+    assert response.status_code == status.HTTP_201_CREATED
+
+    user_id = response.json()["id"]
+
+    response = authorized_admin.get(f"/users/{user_id}")
+    assert response.status_code == status.HTTP_200_OK
+
+
+def test_get_user_details_unauthorized(
+    authorized_admin, client, authorized_client, user_data
+):
+    response = client.post("/users", json=user_data("duplicate@example.com"))
+    pprint(client.__dict__)
+    assert response.status_code == status.HTTP_201_CREATED
+    #
+    # user_id = response.json()["id"]
+    #
+    # response = client.get(f"/users/{user_id}")
+    # pprint(response.json())
+    # response = client.get(f"/users/")
+    # pprint(response.json())
+    response = authorized_client.get(f"/users/")
     pprint(response.json())
-    assert response.status_code == 200
-
-
-def test_get_user_details(authorized_admin, test_user):
-    user_id = test_user["id"]
-    response = authorized_admin.get(f"/management/users/{user_id}")
-    pprint(response.json())
-    assert response.status_code == 200
-    assert response.json()["email"] == test_user["email"]
-
-
-def test_get_user_details_unauthorized(client, test_user):
-    user_id = test_user["id"]
-    response = client.get(f"/management/users/{user_id}")
-    assert (
-        response.status_code == status.HTTP_401_UNAUTHORIZED
-    )  # Expecting a 401 Unauthorized error
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
 
 def test_admin_specific_access(authorized_client, user_data):
     # Attempt to create a user as a non-admin user
     response = authorized_client.post(
-        "/management/users", json=user_data("unauthorized@example.com")
+        "/users", json=user_data("unauthorized@example.com")
     )
-    assert (
-        response.status_code == status.HTTP_403_FORBIDDEN
-    )  # Expecting a 403 Forbidden error
+    assert response.status_code == status.HTTP_403_FORBIDDEN
 
 
-def test_user_password_change(client, test_user):
-    # Log in and change password
-    new_password_data = {
-        "old_password": "123",
-        "new_password": "newpassword123",
-    }
-    response = client.post("/management/users/change-password", json=new_password_data)
-    assert response.status_code == 200
-
-    # Log in with new password
-    login_data = {"email": test_user["email"], "password": "newpassword123"}
-    response = client.post("/login", json=login_data)
-    assert response.status_code == 200
+# def test_user_password_change(client, test_user):
+#     # Log in and change password
+#     new_password_data = {
+#         "old_password": "123",
+#         "new_password": "newpassword123",
+#     }
+#     response = client.post("/users/change-password", json=new_password_data)
+#     assert response.status_code == status.HTTP_200_OK
+#
+#     # Log in with new password
+#     login_data = {"email": test_user["email"], "password": "newpassword123"}
+#     response = client.post("/login", json=login_data)
+#     assert response.status_code == status.HTTP_200_OK

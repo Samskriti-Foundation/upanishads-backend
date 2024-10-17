@@ -1,14 +1,12 @@
-from pprint import pprint
-
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from app.main import app
 from app.management import utils
 from app.management.config import settings
 from app.management.database import Base, get_db
+from app.management.main import management as app
 from app.management.models import User
 from app.management.oauth2 import create_access_token
 
@@ -35,16 +33,13 @@ def session():
 @pytest.fixture()
 def client(session):
     def override_get_db():
-        print("Override override")
         try:
             yield session
         finally:
             session.close()
 
     app.dependency_overrides[get_db] = override_get_db
-    pprint(app.__dict__)
     yield TestClient(app)
-    app.dependency_overrides.clear()
 
 
 @pytest.fixture
@@ -84,7 +79,7 @@ def token_admin(test_admin):
 @pytest.fixture
 def authorized_admin(client, token_admin):
     client.headers = {**client.headers, "Authorization": f"Bearer {token_admin}"}
-    yield client
+    return client
 
 
 @pytest.fixture
@@ -112,5 +107,5 @@ def token(test_user):
 
 @pytest.fixture
 def authorized_client(client, token):
-    client.headers = {**client.headers, "Authorization 123321": f"Bearer {token}"}
+    client.headers = {**client.headers, "Authorization": f"Bearer {token}"}
     return client
