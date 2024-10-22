@@ -13,9 +13,9 @@ from .utils import get_sutra_or_404
 router = APIRouter(prefix="/sutras", tags=["Sutras"])
 
 
-@router.get("/", response_model=List[schemas.SutraOut])
+@router.get("/", response_model=List[schemas.SutraListOut])
 def get_sutras(db: Session = Depends(get_db)):
-    return db.query(models.Sutra).all()
+    return db.query(models.Sutra.id, models.Sutra.number).all()
 
 
 @router.get("/{sutra_no}", response_model=schemas.SutraOut)

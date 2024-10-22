@@ -21,3 +21,9 @@ class Language(str, Enum):
     ta = "ta"  # Tamil
     te = "te"  # Telugu
     hi = "hi"  # Hindi
+
+
+class Philosophy(str, Enum):
+    advaita = "adv"  # Advaita
+    vishishtadvaita = "vis"  # Vishishtadvaita
+    dvaita = "dva"  # Dvaita

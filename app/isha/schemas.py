@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-from app.isha.routers.utils import Language
+from app.isha.routers.utils import Language, Philosophy
 
 
 class SutraBase(BaseModel):
@@ -14,6 +14,11 @@ class SutraCreate(SutraBase):
 
 class SutraOut(SutraBase):
     id: int
+
+
+class SutraListOut(BaseModel):
+    id: int
+    number: int
 
 
 class SutraUpdate(SutraBase):
@@ -53,4 +58,23 @@ class TransliterationOut(TransliterationBase):
 
 
 class TransliterationUpdate(TransliterationBase):
+    pass
+
+
+class InterpretationBase(BaseModel):
+    language: Language
+    text: str
+    sutra_id: int
+    philosophy_type: Philosophy
+
+
+class InterpretationCreate(InterpretationBase):
+    pass
+
+
+class InterpretationOut(InterpretationBase):
+    id: int
+
+
+class InterpretationUpdate(InterpretationBase):
     pass
