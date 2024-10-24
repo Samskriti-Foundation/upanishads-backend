@@ -28,7 +28,10 @@ def get_interpretation_or_404(
 
 @router.get("/{sutra_no}/interpretation", response_model=schemas.InterpretationOut)
 def get_interpretation(
-    sutra_no: int, lang: Language = Language.en, ptype: Philosophy, db: Session = Depends(get_db)
+    sutra_no: int,
+    lang: Language = Language.en,
+    ptype: Philosophy = Philosophy.advaita,
+    db: Session = Depends(get_db),
 ):
     sutra = get_sutra_or_404(sutra_no, db)
 
@@ -45,7 +48,9 @@ def create_interpretation(
 ):
     sutra = get_sutra_or_404(sutra_no, db)
 
-    db_interpretation = get_interpretation_or_404(sutra.id, interpretation.language, db)
+    db_interpretation = get_interpretation_or_404(
+        sutra.id, interpretation.language, interpretation.philosophy_type, db
+    )
 
     if db_interpretation:
         conflict_error_response(f"Interpretation for sutra {sutra_no} already exists!")
@@ -71,7 +76,9 @@ def update_interpretation(
 ):
     sutra = get_sutra_or_404(sutra_no, db)
 
-    db_interpretation = get_interpretation_or_404(sutra.id, lang, db)
+    db_interpretation = get_interpretation_or_404(
+        sutra.id, lang, interpretation.philosophy_type, db
+    )
 
     # Update the fields
     for key, value in interpretation.model_dump().items():
@@ -83,10 +90,10 @@ def update_interpretation(
 
 @router.delete("/{sutra_no}/interpretation", status_code=status.HTTP_204_NO_CONTENT)
 def delete_interpretation(
-    sutra_no: int, language: Language, db: Session = Depends(get_db)
+    sutra_no: int, language: Language, ptype: Philosophy, db: Session = Depends(get_db)
 ):
     sutra = get_sutra_or_404(sutra_no, db)
-    interpretation = get_interpretation_or_404(sutra.id, language, db)
+    interpretation = get_interpretation_or_404(sutra.id, language, ptype, db)
 
     db.delete(interpretation)
     db.commit()

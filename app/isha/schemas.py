@@ -78,3 +78,7 @@ class InterpretationOut(InterpretationBase):
 
 class InterpretationUpdate(InterpretationBase):
     pass
+
+
+class Audio(BaseModel):
+    file_path: str

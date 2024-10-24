@@ -1,3 +1,5 @@
+from typing import Literal
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -13,6 +15,9 @@ class Settings(BaseSettings):
     algorithm: str
     access_token_expire_minutes: int
     refresh_token_expire_minutes: int
+
+    # Environment
+    env: Literal["development", "production"]
 
     # Configuration for Pydantic Settings
     # The env_file parameter specifies the .env file to load the environment variables from

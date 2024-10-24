@@ -21,6 +21,10 @@ class Sutra(Base):
         "Interpretation", back_populates="sutra", cascade="all, delete-orphan"
     )
 
+    audios: Mapped[list["Audio"]] = relationship(
+        "Audio", back_populates="sutra", cascade="all, delete-orphan"
+    )
+
 
 class Transliteration(Base):
     __tablename__ = "transliterations"
@@ -54,3 +58,13 @@ class Interpretation(Base):
     sutra_id: Mapped[int] = mapped_column(ForeignKey("sutras.id", ondelete="CASCADE"))
 
     sutra: Mapped["Sutra"] = relationship("Sutra", back_populates="interpretations")
+
+
+class Audio(Base):
+    __tablename__ = "audio"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    file_path: Mapped[str] = mapped_column(String(500))  # Relative to static directory
+    sutra_id: Mapped[int] = mapped_column(ForeignKey("sutras.id", ondelete="CASCADE"))
+
+    sutra: Mapped["Sutra"] = relationship("Sutra", back_populates="audios")

@@ -74,7 +74,7 @@ def set_refresh_token_cookie(response: Response, refresh_token):
         value=refresh_token,
         httponly=True,
         max_age=REFRESH_TOKEN_EXPIRE_MINUTES * 60,
-        secure=False,
+        secure=True if settings.env == "production" else False,
         samesite="strict",
     )
 
