@@ -5,7 +5,10 @@ from app.config import settings
 from app.isha.main import isha
 from app.routers import auth, projects, users
 
-app = FastAPI()
+app = FastAPI(
+    docs_url=None if settings.env == "production" else "/docs",
+    redoc_url=None if settings.env == "production" else "/redoc",
+)
 
 origins = settings.cors_origins.split(",")
 
@@ -20,7 +23,7 @@ app.add_middleware(
 
 @app.get("/healthz")
 def health_check():
-    return {"status": "available"}
+    return {"status": "available", "environment": settings.env}
 
 
 app.include_router(auth.router)

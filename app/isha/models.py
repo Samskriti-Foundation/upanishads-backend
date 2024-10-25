@@ -9,7 +9,7 @@ class Sutra(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     number: Mapped[int] = mapped_column(Integer, unique=True)
-    text: Mapped[str] = mapped_column(String(1000), nullable=False, unique=True)
+    text: Mapped[str] = mapped_column(String(1000), nullable=False)
 
     transliterations: Mapped[list["Transliteration"]] = relationship(
         "Transliteration", back_populates="sutra", cascade="all, delete-orphan"

@@ -7,6 +7,7 @@ from sqlalchemy.orm import sessionmaker
 from app import utils
 from app.config import settings
 from app.database import Base, get_db
+from app.isha.main import isha
 from app.main import app
 from app.models import User
 from app.oauth2 import create_access_token
@@ -40,6 +41,8 @@ def client(session):
             session.close()
 
     app.dependency_overrides[get_db] = override_get_db
+    isha.dependency_overrides[get_db] = override_get_db
+
     yield TestClient(app)
 
 

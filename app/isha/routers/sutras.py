@@ -4,6 +4,8 @@ from fastapi import APIRouter, Depends, status
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
+from app import models as app_models
+from app import oauth2
 from app.database import get_db
 from app.errors import conflict_error_response
 from app.isha import models, schemas
@@ -24,7 +26,11 @@ def get_sutra(sutra_no: int, db: Session = Depends(get_db)):
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
-def add_sutra(sutra: schemas.SutraCreate, db: Session = Depends(get_db)):
+def add_sutra(
+    sutra: schemas.SutraCreate,
+    db: Session = Depends(get_db),
+    current_user: app_models.User = Depends(oauth2.get_current_user),
+):
     sutra_db = (
         db.query(models.Sutra).filter(models.Sutra.number == sutra.number).first()
     )
@@ -46,7 +52,10 @@ def add_sutra(sutra: schemas.SutraCreate, db: Session = Depends(get_db)):
 
 @router.put("/{sutra_no}", status_code=status.HTTP_204_NO_CONTENT)
 def update_sutra(
-    sutra_no: int, sutra_update: schemas.SutraUpdate, db: Session = Depends(get_db)
+    sutra_no: int,
+    sutra_update: schemas.SutraUpdate,
+    db: Session = Depends(get_db),
+    current_user: app_models.User = Depends(oauth2.get_current_user),
 ):
     sutra = get_sutra_or_404(sutra_no, db)
 
@@ -57,7 +66,11 @@ def update_sutra(
 
 
 @router.delete("/{sutra_no}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_sutra(sutra_no: int, db: Session = Depends(get_db)):
+def delete_sutra(
+    sutra_no: int,
+    db: Session = Depends(get_db),
+    current_admin: app_models.User = Depends(oauth2.get_current_admin),
+):
     sutra = get_sutra_or_404(sutra_no, db)
 
     db.delete(sutra)
