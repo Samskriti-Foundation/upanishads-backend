@@ -1,14 +1,15 @@
 import pytest
+from fastapi import status
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from app.management import utils
-from app.management.config import settings
-from app.management.database import Base, get_db
-from app.management.main import management as app
-from app.management.models import User
-from app.management.oauth2 import create_access_token
+from app import utils
+from app.config import settings
+from app.database import Base, get_db
+from app.main import app
+from app.models import User
+from app.oauth2 import create_access_token
 
 SQLALCHEMY_DATABASE_URL = settings.test_db_url
 
@@ -76,14 +77,38 @@ def token_admin(test_admin):
     )
 
 
+class AuthorizedClient:
+    def __init__(self, client, token):
+        self.client = client
+        self.token = token
+
+    def _get_headers(self, headers):
+        return {**headers, "Authorization": f"Bearer {self.token}"}
+
+    def get(self, url, **kwargs):
+        headers = self._get_headers(kwargs.pop("headers", {}))
+        return self.client.get(url, headers=headers, **kwargs)
+
+    def post(self, url, **kwargs):
+        headers = self._get_headers(kwargs.pop("headers", {}))
+        return self.client.post(url, headers=headers, **kwargs)
+
+    def put(self, url, **kwargs):
+        headers = self._get_headers(kwargs.pop("headers", {}))
+        return self.client.put(url, headers=headers, **kwargs)
+
+    def delete(self, url, **kwargs):
+        headers = self._get_headers(kwargs.pop("headers", {}))
+        return self.client.delete(url, headers=headers, **kwargs)
+
+
 @pytest.fixture
 def authorized_admin(client, token_admin):
-    client.headers = {**client.headers, "Authorization": f"Bearer {token_admin}"}
-    return client
+    return AuthorizedClient(client, token_admin)
 
 
 @pytest.fixture
-def test_user(client):
+def test_user(authorized_admin):
     user_data = {
         "first_name": "John",
         "last_name": "Doe",
@@ -91,9 +116,9 @@ def test_user(client):
         "password": "123",
     }
 
-    res = client.post("/users/", json=user_data)
+    res = authorized_admin.post("/users/", json=user_data)
 
-    assert res.status_code == 201
+    assert res.status_code == status.HTTP_201_CREATED
 
     new_user = res.json()
     new_user["password"] = user_data["password"]
@@ -107,5 +132,4 @@ def token(test_user):
 
 @pytest.fixture
 def authorized_client(client, token):
-    client.headers = {**client.headers, "Authorization": f"Bearer {token}"}
-    return client
+    return AuthorizedClient(client, token)

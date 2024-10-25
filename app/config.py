@@ -1,3 +1,5 @@
+from typing import Literal
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -5,6 +7,18 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 # This class inherits from BaseSettings, which provides support for loading settings from environment variables and a .env file
 # Refer to https://docs.pydantic.dev/latest/concepts/pydantic_settings/#dotenv-env-support for more details
 class Settings(BaseSettings):
+    # Database
+    db_url: str
+    test_db_url: str
+
+    # JWT Config
+    secret_key: str
+    algorithm: str
+    access_token_expire_minutes: int
+    refresh_token_expire_minutes: int
+
+    # Environment
+    env: Literal["development", "production"]
     cors_origins: str
 
     # Configuration for Pydantic Settings

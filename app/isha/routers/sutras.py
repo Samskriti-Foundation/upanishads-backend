@@ -4,9 +4,9 @@ from fastapi import APIRouter, Depends, status
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
+from app.database import get_db
 from app.errors import conflict_error_response
 from app.isha import models, schemas
-from app.isha.database import get_db
 
 from .utils import get_sutra_or_404
 

@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-from app.isha.routers.utils import Language, Philosophy
+from app.utils import Language, Philosophy
 
 
 class SutraBase(BaseModel):

@@ -2,15 +2,14 @@ from fastapi import APIRouter, Depends, File, Path, UploadFile, status
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
+from app.database import get_db
 from app.errors import (
     bad_request_error_response,
     conflict_error_response,
     not_found_error_response,
 )
 from app.isha import models, schemas
-from app.isha.database import get_db
-
-from .utils import Language, get_sutra_or_404
+from app.utils import Language, get_sutra_or_404
 
 router = APIRouter(prefix="/sutras", tags=["Audio"])
 

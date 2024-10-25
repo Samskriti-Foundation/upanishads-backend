@@ -2,9 +2,9 @@ from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
-from app.management import models, oauth2, schemas, utils
-from app.management.database import get_db
-from app.management.oauth2 import get_current_admin, get_current_user
+from app import models, oauth2, schemas, utils
+from app.database import get_db
+from app.oauth2 import get_current_admin, get_current_user
 
 router = APIRouter(prefix="/projects", tags=["Projects"])
 

@@ -1,3 +1,5 @@
+from enum import Enum
+
 import bcrypt
 
 
@@ -17,3 +19,16 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
         plain_password.encode("utf-8"), hashed_password.encode("utf-8")
     )
 
+
+class Language(str, Enum):
+    en = "en"  # English
+    kn = "kn"  # Kannada
+    ta = "ta"  # Tamil
+    te = "te"  # Telugu
+    hi = "hi"  # Hindi
+
+
+class Philosophy(str, Enum):
+    advaita = "adv"  # Advaita
+    vishishtadvaita = "vis"  # Vishishtadvaita
+    dvaita = "dva"  # Dvaita

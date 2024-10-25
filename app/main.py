@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
 from app.isha.main import isha
-from app.management.main import management
+from app.routers import auth, projects, users
 
 app = FastAPI()
 
@@ -23,5 +23,8 @@ def health_check():
     return {"status": "available"}
 
 
+app.include_router(auth.router)
+app.include_router(users.router)
+app.include_router(projects.router)
+
 app.mount("/isha", isha)
-app.mount("/management", management)

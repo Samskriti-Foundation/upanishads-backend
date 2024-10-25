@@ -1,5 +1,3 @@
-from pprint import pprint
-
 import pytest
 from fastapi import status
 
@@ -53,20 +51,13 @@ def test_get_user_details(authorized_admin, user_data):
 
 
 def test_get_user_details_unauthorized(
-    authorized_admin, client, authorized_client, user_data
+    authorized_admin, authorized_client, client, user_data
 ):
-    response = client.post("/users", json=user_data("duplicate@example.com"))
-    pprint(client.__dict__)
+    response = authorized_admin.post("/users", json=user_data("duplicate@example.com"))
     assert response.status_code == status.HTTP_201_CREATED
-    #
-    # user_id = response.json()["id"]
-    #
-    # response = client.get(f"/users/{user_id}")
-    # pprint(response.json())
-    # response = client.get(f"/users/")
-    # pprint(response.json())
     response = authorized_client.get(f"/users/")
-    pprint(response.json())
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+    response = client.get(f"/users/")
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
 
