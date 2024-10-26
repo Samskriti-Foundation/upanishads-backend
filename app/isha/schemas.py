@@ -28,7 +28,6 @@ class SutraUpdate(SutraBase):
 class MeaningBase(BaseModel):
     language: Language
     text: str
-    sutra_id: int
 
 
 class MeaningCreate(MeaningBase):
@@ -46,7 +45,6 @@ class MeaningUpdate(MeaningBase):
 class TransliterationBase(BaseModel):
     language: Language
     text: str
-    sutra_id: int
 
 
 class TransliterationCreate(TransliterationBase):
@@ -64,7 +62,6 @@ class TransliterationUpdate(TransliterationBase):
 class InterpretationBase(BaseModel):
     language: Language
     text: str
-    sutra_id: int
     philosophy_type: Philosophy
 
 
