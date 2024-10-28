@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Depends, status
-from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
 from app import models as app_models
@@ -96,12 +95,12 @@ def update_transliteration(
 @router.delete("/{sutra_no}/transliteration", status_code=status.HTTP_204_NO_CONTENT)
 def delete_transliteration(
     sutra_no: int,
-    language: Language,
+    lang: Language,
     db: Session = Depends(get_db),
     current_admin: app_models.User = Depends(oauth2.get_current_admin),
 ):
     sutra = get_sutra_or_404(sutra_no, db)
-    transliteration = get_transliteration_or_404(sutra.id, language, db)
+    transliteration = get_transliteration_or_404(sutra.id, lang, db)
 
     db.delete(transliteration)
     db.commit()

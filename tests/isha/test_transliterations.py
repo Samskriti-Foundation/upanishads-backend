@@ -122,13 +122,14 @@ def test_update_transliteration(
     authorized_client,
     authorized_admin,
     sutra_data,
+    transliteration_data,
 ):
 
     response = authorized_admin.post("/isha/sutras", json=sutra_data)
     assert response.status_code == status.HTTP_201_CREATED
 
     response = authorized_admin.post(
-        f"/isha/sutras/{sutra_data.get("number")}/transliteration?lang={sutra_data.get("language")}",
+        f"/isha/sutras/{sutra_data.get("number")}/transliteration?lang={transliteration_data.get("language")}",
         json=transliteration_data,
     )
     assert response.status_code == status.HTTP_201_CREATED
@@ -142,13 +143,13 @@ def test_update_transliteration(
     test_client = clients[client_type]
 
     updated_transliteration = {
-        "id": 1,
         "language": "en",
         "text": "Test transliteration text",
     }
 
     response = test_client.put(
-        f"/isha/sutras/{sutra_data.get("number")}", json=updated_transliteration
+        f"/isha/sutras/{sutra_data.get("number")}/transliteration?lang={transliteration_data.get("language")}",
+        json=updated_transliteration,
     )
     assert response.status_code == expected_status
 
@@ -157,6 +158,7 @@ def test_update_transliteration(
             f"/isha/sutras/{sutra_data.get("number")}/transliteration?lang={updated_transliteration.get("language")}"
         )
         assert response.status_code == status.HTTP_200_OK
+        updated_transliteration["id"] = 1
         assert response.json() == updated_transliteration
 
 
@@ -177,16 +179,23 @@ def test_update_transliteration(
         ),  # Authorized admin should also return 201
     ],
 )
-def test_delete_sutra(
+def test_delete_transliteration(
     client_type,
     expected_status,
     client,
     authorized_client,
     authorized_admin,
     sutra_data,
+    transliteration_data,
 ):
 
     response = authorized_admin.post("/isha/sutras", json=sutra_data)
+    assert response.status_code == status.HTTP_201_CREATED
+
+    response = authorized_admin.post(
+        f"/isha/sutras/{sutra_data.get("number")}/transliteration?lang={transliteration_data.get("language")}",
+        json=transliteration_data,
+    )
     assert response.status_code == status.HTTP_201_CREATED
 
     # Map client_type to the corresponding client instance
@@ -197,5 +206,7 @@ def test_delete_sutra(
     }
     test_client = clients[client_type]
 
-    response = test_client.delete(f"/isha/sutras/{sutra_data.get("number")}")
+    response = test_client.delete(
+        f"/isha/sutras/{sutra_data.get("number")}/transliteration?lang={transliteration_data.get("language")}"
+    )
     assert response.status_code == expected_status

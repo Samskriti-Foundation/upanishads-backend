@@ -62,7 +62,7 @@ class TransliterationUpdate(TransliterationBase):
 class InterpretationBase(BaseModel):
     language: Language
     text: str
-    philosophy_type: Philosophy
+    philosophy: Philosophy
 
 
 class InterpretationCreate(InterpretationBase):

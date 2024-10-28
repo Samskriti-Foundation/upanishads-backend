@@ -58,7 +58,7 @@ class Interpretation(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     language: Mapped[str] = mapped_column(String(50), nullable=False)
     text: Mapped[str] = mapped_column(String(1000), nullable=False)
-    philosophy_type: Mapped[str] = mapped_column(String(50), nullable=False)
+    philosophy: Mapped[str] = mapped_column(String(50), nullable=False)
     sutra_id: Mapped[int] = mapped_column(
         ForeignKey("isha_sutras.id", ondelete="CASCADE")
     )
