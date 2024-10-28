@@ -2,7 +2,7 @@ from fastapi import FastAPI
 
 from app.config import settings
 
-from .routers import interpretations, meanings, sutras, transliterations
+from .routers import audio, interpretations, meanings, sutras, transliterations
 
 isha = FastAPI(
     title="Ishavasyopanishad",
@@ -14,3 +14,4 @@ isha.include_router(sutras.router)
 isha.include_router(meanings.router)
 isha.include_router(transliterations.router)
 isha.include_router(interpretations.router)
+isha.include_router(audio.router)

@@ -71,6 +71,7 @@ class Audio(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     file_path: Mapped[str] = mapped_column(String(500))  # Relative to static directory
+    mode: Mapped[str] = mapped_column(String(10))
     sutra_id: Mapped[int] = mapped_column(
         ForeignKey("isha_sutras.id", ondelete="CASCADE")
     )

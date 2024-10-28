@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from app.config import settings
 from app.isha.main import isha
@@ -9,6 +10,8 @@ app = FastAPI(
     docs_url=None if settings.env == "production" else "/docs",
     redoc_url=None if settings.env == "production" else "/redoc",
 )
+
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 origins = settings.cors_origins.split(",")
 
