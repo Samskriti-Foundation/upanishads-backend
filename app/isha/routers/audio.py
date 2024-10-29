@@ -51,6 +51,7 @@ def create_audio(
         .filter(models.Audio.sutra_id == sutra.id, models.Audio.mode == mode)
         .first()
     )
+
     if db_audio:
         return conflict_error_response(
             f"Audio for sutra {sutra_no} in {mode} mode already exists!"
