@@ -23,8 +23,10 @@ def get_audio_or_404(sutra_id: int, mode: Literal["chant", "recite"], db: Sessio
         .filter(models.Audio.sutra_id == sutra_id, models.Audio.mode == mode)
         .first()
     )
+
     if not db_audio:
         return not_found_error_response()
+
     return db_audio
 
 
