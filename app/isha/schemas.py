@@ -79,3 +79,10 @@ class InterpretationUpdate(InterpretationBase):
 
 class Audio(BaseModel):
     file_path: str
+
+
+class Result(BaseModel):
+    text: str
+    sutra_no: int
+    mode: str | None
+    lang: str | None
