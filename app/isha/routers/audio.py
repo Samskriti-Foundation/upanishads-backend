@@ -1,10 +1,10 @@
 from pathlib import Path
-from typing import Literal
 
 from fastapi import APIRouter, Depends, File, UploadFile, status
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
+from app import utils
 from app.database import get_db
 from app.errors import conflict_error_response, not_found_error_response
 from app.isha import models, schemas
@@ -17,7 +17,7 @@ STATIC_AUDIO_DIR.mkdir(parents=True, exist_ok=True)
 router = APIRouter(prefix="/sutras", tags=["Audio"])
 
 
-def get_audio_or_404(sutra_id: int, mode: Literal["chant", "recite"], db: Session):
+def get_audio_or_404(sutra_id: int, mode: utils.Mode, db: Session):
     db_audio = (
         db.query(models.Audio)
         .filter(models.Audio.sutra_id == sutra_id, models.Audio.mode == mode)
@@ -31,9 +31,7 @@ def get_audio_or_404(sutra_id: int, mode: Literal["chant", "recite"], db: Sessio
 
 
 @router.get("/{sutra_no}/audio", response_model=schemas.Audio)
-def get_audio(
-    sutra_no: int, mode: Literal["chant", "recite"], db: Session = Depends(get_db)
-):
+def get_audio(sutra_no: int, mode: utils.Mode, db: Session = Depends(get_db)):
     sutra = get_sutra_or_404(sutra_no, db)
     audio = get_audio_or_404(sutra.id, mode, db)
     return audio
@@ -42,7 +40,7 @@ def get_audio(
 @router.post("/{sutra_no}/audio", status_code=status.HTTP_201_CREATED)
 def create_audio(
     sutra_no: int,
-    mode: Literal["chant", "recite"],
+    mode: utils.Mode,
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
 ):
@@ -81,7 +79,7 @@ def create_audio(
 @router.put("/{sutra_no}/audio", status_code=status.HTTP_204_NO_CONTENT)
 def update_audio(
     sutra_no: int,
-    mode: Literal["chant", "recite"],
+    mode: utils.Mode,
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
 ):
@@ -102,9 +100,7 @@ def update_audio(
 
 
 @router.delete("/{sutra_no}/audio", status_code=status.HTTP_204_NO_CONTENT)
-def delete_audio(
-    sutra_no: int, mode: Literal["chant", "recite"], db: Session = Depends(get_db)
-):
+def delete_audio(sutra_no: int, mode: utils.Mode, db: Session = Depends(get_db)):
     sutra = get_sutra_or_404(sutra_no, db)
     audio = get_audio_or_404(sutra.id, mode, db)
 

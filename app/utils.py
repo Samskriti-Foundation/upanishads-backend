@@ -32,3 +32,9 @@ class Philosophy(str, Enum):
     advaita = "adv"  # Advaita
     vishishtadvaita = "vis"  # Vishishtadvaita
     dvaita = "dva"  # Dvaita
+
+
+class Mode(str, Enum):
+    chant = "chant"  # Chant
+    teachMe = "teach_me"  # Teach Me
+    learnMore = "learn_more"  # Learn More
