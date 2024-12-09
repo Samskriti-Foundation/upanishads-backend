@@ -1,4 +1,4 @@
-from sqlalchemy import ForeignKey, Integer, String
+from sqlalchemy import ForeignKey, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
@@ -31,7 +31,7 @@ class Transliteration(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     language: Mapped[str] = mapped_column(String(50), nullable=False)
-    text: Mapped[str] = mapped_column(String(1000), nullable=False)
+    text: Mapped[str] = mapped_column(Text, nullable=False)
     sutra_id: Mapped[int] = mapped_column(
         ForeignKey("isha_sutras.id", ondelete="CASCADE")
     )
@@ -44,7 +44,7 @@ class Meaning(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     language: Mapped[str] = mapped_column(String(50), nullable=False)
-    text: Mapped[str] = mapped_column(String(1000), nullable=False)
+    text: Mapped[str] = mapped_column(Text, nullable=False)
     sutra_id: Mapped[int] = mapped_column(
         ForeignKey("isha_sutras.id", ondelete="CASCADE")
     )
@@ -57,7 +57,7 @@ class Interpretation(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     language: Mapped[str] = mapped_column(String(50), nullable=False)
-    text: Mapped[str] = mapped_column(String(1000), nullable=False)
+    text: Mapped[str] = mapped_column(Text, nullable=False)
     philosophy: Mapped[str] = mapped_column(String(50), nullable=False)
     sutra_id: Mapped[int] = mapped_column(
         ForeignKey("isha_sutras.id", ondelete="CASCADE")
