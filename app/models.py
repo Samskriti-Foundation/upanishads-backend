@@ -1,5 +1,5 @@
 from sqlalchemy import Boolean, String
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import relationship, Mapped, mapped_column
 
 from .database import Base
 
@@ -29,3 +29,5 @@ class Project(Base):
     )
     description: Mapped[str] = mapped_column(String(1000), nullable=True)
     img: Mapped[str] = mapped_column(String(500), nullable=True)
+
+    sutras = relationship("Sutra", backref="project", cascade="all, delete-orphan")

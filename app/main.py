@@ -4,6 +4,7 @@ from fastapi.staticfiles import StaticFiles
 
 from app.config import settings
 from app.isha.main import isha
+from app.kena.main import kena
 from app.routers import auth, projects, users
 
 app = FastAPI(
@@ -34,3 +35,4 @@ app.include_router(users.router)
 app.include_router(projects.router)
 
 app.mount("/isha", isha)
+app.mount("/kena", kena)

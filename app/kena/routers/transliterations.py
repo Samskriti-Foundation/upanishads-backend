@@ -75,7 +75,7 @@ def add_transliteration(
 @router.put("/{sutra_project}/{sutra_chapter}/{sutra_no}/transliteration", status_code=status.HTTP_204_NO_CONTENT)
 def update_transliteration(
     transliteration: schemas.TransliterationUpdate,
-    sutra_project: str='isha',
+    sutra_project: str='kena',
     sutra_chapter: int=0,
     sutra_no: int=0,
     lang: Language='en',

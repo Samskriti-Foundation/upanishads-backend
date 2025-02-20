@@ -75,7 +75,7 @@ def add_interpretation(
 @router.put("/{sutra_project}/{sutra_chapter}/{sutra_no}/interpretation", status_code=status.HTTP_204_NO_CONTENT)
 def update_interpretation(
     interpretation: schemas.InterpretationUpdate,
-    sutra_project: str='isha',
+    sutra_project: str='kena',
     sutra_chapter: int=0,
     sutra_no: int=0,
     lang: Language='en',

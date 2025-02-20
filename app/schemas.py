@@ -34,6 +34,11 @@ class ProjectOut(ProjectBase):
     id: int
 
 
+class Project(ProjectBase):
+    id: int = None  # Make id optional
+    class Config:
+        orm_mode = True
+
 class Token(BaseModel):
     access_token: str
     refresh_token: str

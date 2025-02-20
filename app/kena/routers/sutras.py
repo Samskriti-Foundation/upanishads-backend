@@ -16,7 +16,7 @@ router = APIRouter(prefix="/sutras", tags=["Sutras"])
 
 
 @router.get("/", response_model=List[schemas.SutraListOut])
-def get_sutras(project_name: str = "isha", db: Session = Depends(get_db)):
+def get_sutras(project_name : str="kena", db: Session = Depends(get_db)):
     db_project = db.query(app_models.Project).filter(app_models.Project.name == project_name).first()
     if db_project is None:
         raise HTTPException(status_code=404, detail=f"Project {project_name} not found")
@@ -26,7 +26,7 @@ def get_sutras(project_name: str = "isha", db: Session = Depends(get_db)):
 
 
 @router.get("/{sutra_project}/{sutra_chapter}/{sutra_no}", response_model=schemas.SutraOut)
-def get_sutra(sutra_project: str='isha', sutra_chapter: int=0, sutra_no: int=0, db: Session = Depends(get_db)):
+def get_sutra(sutra_project: str='kena', sutra_chapter: int=0, sutra_no: int=0, db: Session = Depends(get_db)):
     return get_sutra_or_404(sutra_project, sutra_chapter, sutra_no, db)
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
@@ -66,7 +66,7 @@ def add_sutra(
 @router.put("/{sutra_project}/{sutra_chapter}/{sutra_no}/{sutra_text}", status_code=status.HTTP_204_NO_CONTENT)
 def update_sutra(
     sutra_update: schemas.SutraUpdate,
-    sutra_project: str='isha',
+    sutra_project: str='kena',
     sutra_chapter: int=0,
     sutra_no: int=0,
     sutra_text: str="?",
@@ -83,7 +83,7 @@ def update_sutra(
 
 @router.delete("/{sutra_project}/{sutra_chapter}/{sutra_no}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_sutra(
-    sutra_project: str='isha',
+    sutra_project: str='kena',
     sutra_chapter: int=0,
     sutra_no: int=0,
     db: Session = Depends(get_db),

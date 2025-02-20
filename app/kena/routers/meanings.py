@@ -72,7 +72,7 @@ def add_meaning(
 @router.put("/{sutra_project}/{sutra_chapter}/{sutra_no}/meaning", status_code=status.HTTP_204_NO_CONTENT)
 def update_meaning(
     meaning: schemas.MeaningUpdate,
-    sutra_project: str='isha',
+    sutra_project: str='kena',
     sutra_chapter: int=0,
     sutra_no: int=0,
     lang: Language='en',

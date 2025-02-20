@@ -38,6 +38,7 @@ def get_project(project_id: int, db: Session = Depends(get_db)):
 @router.post("/")
 def add_project(
     project: schemas.ProjectCreate,
+    name : str, description: str,
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user),
 ):
@@ -51,9 +52,11 @@ def add_project(
             detail=f"Project with name {project.name} already exists",
         )
 
-    db.add(project)
+    db_project = models.Project(name=name, description=description)
+    db.add(db_project)
     db.commit()
-    db.refresh(project)
+    db.refresh(db_project)
+    return db_project
 
     return JSONResponse(
         status_code=status.HTTP_201_CREATED,
