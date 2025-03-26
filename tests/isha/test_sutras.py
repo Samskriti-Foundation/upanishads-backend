@@ -4,58 +4,38 @@ from fastapi import status
 
 @pytest.fixture
 def sutra_data():
-    return {"number": 10, "text": "Test Sutra text"}
+    def _sutra_data():
+        return {"sutra": {"id":0, "chapter": 0, "number": 10, "text": "Test Sutra text", "project_id": 1}, "project":{"name":"test"}}
+    return _sutra_data
+@pytest.fixture
+def project_data():
+    def _project_data():
+        return {"name": 'test', "description": "testopanishad"}
+    return _project_data
 
-
-@pytest.mark.parametrize(
-    "client_type",
-    [
-        "client",
-        "authorized_client",
-        "authorized_admin",
-    ],
-)
-def test_get_sutra(
-    client_type,
-    client,
-    authorized_client,
-    authorized_admin,
-    sutra_data,
-):
-    response = authorized_admin.post("/isha/sutras", json=sutra_data)
+@pytest.mark.parametrize("client_type",["client", "authorized_client", "authorized_admin"])
+def test_get_sutra(client_type, client, authorized_client, authorized_admin, sutra_data, project_data):
+    response = authorized_admin.post("/projects/?name=test&description=testdesc", json=project_data())
+    assert response.status_code == status.HTTP_201_CREATED
+    response = authorized_admin.post("/isha/sutras/", json=sutra_data())
     assert response.status_code == status.HTTP_201_CREATED
 
     # Map client_type to the corresponding client instance
-    clients = {
-        "client": client,
-        "authorized_client": authorized_client,
-        "authorized_admin": authorized_admin,
-    }
+    clients = {"client": client, "authorized_client": authorized_client, "authorized_admin": authorized_admin}
     test_client = clients[client_type]
 
-    response = test_client.get("/isha/sutras")
+    response = test_client.get("/isha/sutras/test/0/10")
     assert response.status_code == status.HTTP_200_OK
 
     response_data = response.json()
-    assert len(response_data) == 1
-    assert response_data[0] == {"id": 1, "number": sutra_data.get("number")}
+    assert len(response_data) == 4
+    assert response_data == {"id": 1, "chapter": sutra_data()["sutra"]["chapter"], "number": sutra_data()["sutra"]["number"], "text": sutra_data()["sutra"]["text"]}
 
-
-@pytest.mark.parametrize(
-    "client_type, expected_status",
+@pytest.mark.parametrize("client_type, expected_status",
     [
-        (
-            "client",
-            status.HTTP_401_UNAUTHORIZED,
-        ),  # Unauthorized client should return 401
-        (
-            "authorized_client",
-            status.HTTP_201_CREATED,
-        ),  # Authorized regular user should return 201
-        (
-            "authorized_admin",
-            status.HTTP_201_CREATED,
-        ),  # Authorized admin should also return 201
+        ("client", status.HTTP_401_UNAUTHORIZED,),  # Unauthorized client should return 401
+        ("authorized_client", status.HTTP_201_CREATED,),  # Authorized regular user should return 201
+        ("authorized_admin", status.HTTP_201_CREATED,)  # Authorized admin should also return 201
     ],
 )
 def test_add_sutra(
@@ -65,6 +45,7 @@ def test_add_sutra(
     authorized_client,
     authorized_admin,
     sutra_data,
+    project_data
 ):
 
     # Map client_type to the corresponding client instance
@@ -75,7 +56,9 @@ def test_add_sutra(
     }
     test_client = clients[client_type]
 
-    response = test_client.post("/isha/sutras", json=sutra_data)
+    response = test_client.post("/projects/?name=test&description=testdesc", json=project_data())
+    assert response.status_code == expected_status
+    response = test_client.post("/isha/sutras", json=sutra_data())
     assert response.status_code == expected_status
 
 
@@ -88,11 +71,11 @@ def test_add_sutra(
         ),  # Unauthorized client should return 401
         (
             "authorized_client",
-            status.HTTP_204_NO_CONTENT,
+            status.HTTP_202_ACCEPTED,
         ),  # Authorized regular user should return 201
         (
             "authorized_admin",
-            status.HTTP_204_NO_CONTENT,
+            status.HTTP_202_ACCEPTED,
         ),  # Authorized admin should also return 201
     ],
 )
@@ -103,9 +86,11 @@ def test_update_sutra(
     authorized_client,
     authorized_admin,
     sutra_data,
+    project_data
 ):
-
-    response = authorized_admin.post("/isha/sutras", json=sutra_data)
+    response = authorized_admin.post("/projects/?name=test&description=testdesc", json=project_data())
+    assert response.status_code == status.HTTP_201_CREATED
+    response = authorized_admin.post("/isha/sutras/", json=sutra_data())
     assert response.status_code == status.HTTP_201_CREATED
 
     # Map client_type to the corresponding client instance
@@ -116,34 +101,22 @@ def test_update_sutra(
     }
     test_client = clients[client_type]
 
-    updated_sutra = {"id": 1, "number": 10, "text": "Updated sutra message"}
-
-    response = test_client.put(
-        f"/isha/sutras/{sutra_data.get("number")}", json=updated_sutra
-    )
+    updated_sutra = {"id": 1, "chapter": 0, "number": 10, "text": "Updated sutra message"}
+    sutra_data = sutra_data()
+    response = test_client.put(f"/isha/sutras/{sutra_data["project"]["name"]}/{sutra_data["sutra"]["chapter"]}/{sutra_data["sutra"]["number"]}", json=updated_sutra)
     assert response.status_code == expected_status
 
-    if response.status_code == status.HTTP_204_NO_CONTENT:
-        response = test_client.get(f"/isha/sutras/{sutra_data.get("number")}")
+    if response.status_code == status.HTTP_202_ACCEPTED:
+        response = test_client.get(f"/isha/sutras/{sutra_data["project"]["name"]}/{sutra_data["sutra"]["chapter"]}/{sutra_data["sutra"]["number"]}")
         assert response.status_code == status.HTTP_200_OK
         assert response.json() == updated_sutra
-
 
 @pytest.mark.parametrize(
     "client_type, expected_status",
     [
-        (
-            "client",
-            status.HTTP_401_UNAUTHORIZED,
-        ),  # Unauthorized client should return 401
-        (
-            "authorized_client",
-            status.HTTP_403_FORBIDDEN,
-        ),  # Authorized regular user should return 201
-        (
-            "authorized_admin",
-            status.HTTP_204_NO_CONTENT,
-        ),  # Authorized admin should also return 201
+        ("client", status.HTTP_401_UNAUTHORIZED,),  # Unauthorized client should return 401
+        ("authorized_client", status.HTTP_403_FORBIDDEN,),  # Authorized regular user should return 201
+        ("authorized_admin", status.HTTP_200_OK,),  # Authorized admin should also return 201
     ],
 )
 def test_delete_sutra(
@@ -153,11 +126,12 @@ def test_delete_sutra(
     authorized_client,
     authorized_admin,
     sutra_data,
+    project_data
 ):
-
-    response = authorized_admin.post("/isha/sutras", json=sutra_data)
+    response = authorized_admin.post("/projects/?name=test&description=testdesc", json=project_data())
     assert response.status_code == status.HTTP_201_CREATED
-
+    response = authorized_admin.post("/isha/sutras/", json=sutra_data())
+    assert response.status_code == status.HTTP_201_CREATED
     # Map client_type to the corresponding client instance
     clients = {
         "client": client,
@@ -165,6 +139,7 @@ def test_delete_sutra(
         "authorized_admin": authorized_admin,
     }
     test_client = clients[client_type]
-
-    response = test_client.delete(f"/isha/sutras/{sutra_data.get("number")}")
+    sutra_data = sutra_data()
+    # print(f"sutra data: {sutra_data["project"]["name"]}/{sutra_data["sutra"]["chapter"]}/{sutra_data["sutra"]["number"]}")
+    response = test_client.delete(f"/isha/sutras/{sutra_data["project"]["name"]}/{sutra_data["sutra"]["chapter"]}/{sutra_data["sutra"]["number"]}")
     assert response.status_code == expected_status

@@ -21,6 +21,7 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 
 
 class Language(str, Enum):
+    sa = "sa"  # Sanskrit
     en = "en"  # English
     kn = "kn"  # Kannada
     ta = "ta"  # Tamil

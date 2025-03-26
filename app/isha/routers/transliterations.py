@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, HTTPException
+from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
 from app import models as app_models
@@ -29,14 +30,10 @@ def get_transliteration_or_404(sutra_id: int, language: Language, db: Session):
 
 @router.get("/{sutra_project}/{sutra_chapter}/{sutra_no}/transliteration", response_model=schemas.TransliterationOut)
 def get_transliteration(
-    sutra_project: str, sutra_chapter: int, sutra_no: int, lang: Language = Language.en, db: Session = Depends(get_db)
-):
+    sutra_project: str, sutra_chapter: int, sutra_no: int, lang: Language = Language.en, db: Session = Depends(get_db)):
     sutra = get_sutra_or_404(sutra_project, sutra_chapter, sutra_no, db)
-
     transliteration = get_transliteration_or_404(sutra.id, lang, db)
-
     return transliteration
-
 
 @router.post("/{sutra_project}/{sutra_chapter}/{sutra_no}/transliteration", status_code=status.HTTP_201_CREATED)
 def add_transliteration(
@@ -57,20 +54,12 @@ def add_transliteration(
         .filter(models.Transliteration.language == transliteration.language)
         .first()
     )
-
-    if db_transliteration:
-        conflict_error_response(
-            f"Transliteration for {sutra_project} sutra chapter {sutra_chapter} number {sutra_no} in language {transliteration.language} already exists!"
-        )
-
+    if db_transliteration: conflict_error_response(f"Transliteration for {sutra_project} sutra chapter {sutra_chapter} number {sutra_no} in language {transliteration.language} already exists!")
     new_transliteration = models.Transliteration(**transliteration.model_dump(), sutra_id=sutra.id)
-
     db.add(new_transliteration)
     db.commit()
     db.refresh(new_transliteration)
-
     return {"id": new_transliteration.id}
-
 
 @router.put("/{sutra_project}/{sutra_chapter}/{sutra_no}/transliteration", status_code=status.HTTP_204_NO_CONTENT)
 def update_transliteration(
@@ -83,16 +72,14 @@ def update_transliteration(
     current_user: app_models.User = Depends(oauth2.get_current_user),
 ):
     sutra = get_sutra_or_404(sutra_project, sutra_chapter, sutra_no, db)
-
     db_transliteration = get_transliteration_or_404(sutra.id, lang, db)
-
-    # Update the fields
-    for key, value in transliteration.model_dump().items():
-        setattr(db_transliteration, key, value)
-
-    db.commit()
-    db.refresh(db_transliteration)
-
+    if db_transliteration:
+        # Update the fields
+        for key, value in transliteration.model_dump().items(): setattr(db_transliteration, key, value)
+        db.commit()
+        db.refresh(db_transliteration)
+        return JSONResponse(status_code=status.HTTP_202_ACCEPTED, content=f'Updated sutra {sutra_project} chapter {sutra_chapter} sutra {sutra_no} text "{transliteration.model_dump()["text"]}"')
+    else: raise HTTPException(status_code=404, detail=f"Project {sutra_project} chapter {sutra_chapter} sutra {sutra_no} transliteration {transliteration.model_dump()["language"]} not found")
 
 @router.delete("/{sutra_project}/{sutra_chapter}/{sutra_no}/transliteration", status_code=status.HTTP_204_NO_CONTENT)
 def delete_transliteration(
@@ -105,6 +92,8 @@ def delete_transliteration(
 ):
     sutra = get_sutra_or_404(sutra_project, sutra_chapter, sutra_no, db)
     transliteration = get_transliteration_or_404(sutra.id, lang, db)
-
-    db.delete(transliteration)
-    db.commit()
+    if transliteration:
+        db.delete(transliteration)
+        db.commit()
+        return JSONResponse(status_code=status.HTTP_200_OK, content=f"Deleted sutra {sutra_project} chapter {sutra_chapter} sutra {sutra_no} transliteration")
+    else: raise HTTPException(status_code=404, detail=f"Project {sutra_project} chapter {sutra_chapter} sutra {sutra_no} transliteration not found")

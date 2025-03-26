@@ -49,25 +49,16 @@ def create_audio(
     current_user: app_models.User = Depends(oauth2.get_current_user),
 ):
     sutra = get_sutra_or_404(sutra_project, sutra_chapter, sutra_no, db)
+    db_audio = (db.query(models.Audio).filter(models.Audio.sutra_id == sutra.id, models.Audio.mode == mode).first())
 
-    db_audio = (
-        db.query(models.Audio)
-        .filter(models.Audio.sutra_id == sutra.id, models.Audio.mode == mode)
-        .first()
-    )
-
-    if db_audio:
-        return conflict_error_response(
-            f"Audio for {sutra_project} sutra chapter {sutra_chapter} number {sutra_no} in {mode} mode already exists!"
-        )
+    if db_audio:return conflict_error_response(f"Audio for {sutra_project} sutra chapter {sutra_chapter} number {sutra_no} in {mode} mode already exists!")
 
     mode_dir = STATIC_AUDIO_DIR / mode
     mode_dir.mkdir(parents=True, exist_ok=True)
     file_extension = Path(file.filename or "").suffix
     file_path = mode_dir / f"sutra_{sutra_no}{file_extension}"
 
-    with open(file_path, "wb") as buffer:
-        buffer.write(file.file.read())
+    with open(file_path, "wb") as buffer: buffer.write(file.file.read())
 
     audio = models.Audio(file_path=str(file_path), sutra_id=sutra.id, mode=mode)
     db.add(audio)

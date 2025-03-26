@@ -1,7 +1,7 @@
 import pytest
 from fastapi import status
 
-entity_suffix = "interpretation"
+entity_suffix = "bhashyam"
 
 @pytest.fixture
 def sutra_data():
@@ -14,25 +14,25 @@ def project_data():
         return {"name": 'test', "description": "testopanishad"}
     return _project_data
 @pytest.fixture
-def interpretation_data():
-    def _interpretation_data():
-        return {"language": "en", "text": "Test interpretation text", "philosophy":"adv"}
-    return _interpretation_data
+def bhashyam_data():
+    def _bhashyam_data():
+        return {"language": "en", "text": "Test bhashyam text", "philosophy":"adv"}
+    return _bhashyam_data
 
 @pytest.mark.parametrize("client_type",["client", "authorized_client","authorized_admin",],)
-def test_get_interpretation(client_type, client, authorized_client, authorized_admin, project_data, sutra_data, interpretation_data,):
+def test_get_bhashyam(client_type, client, authorized_client, authorized_admin, project_data, sutra_data, bhashyam_data,):
     response = authorized_admin.post("/projects/?name=test&description=testdesc", json=project_data())
     assert response.status_code == status.HTTP_201_CREATED
     response = authorized_admin.post("/isha/sutras/", json=sutra_data())
     assert response.status_code == status.HTTP_201_CREATED
-    response = authorized_admin.post(f"/isha/sutras/{sutra_data()["project"]["name"]}/{sutra_data()["sutra"]["chapter"]}/{sutra_data()["sutra"]["number"]}/{entity_suffix}", json=interpretation_data())
+    response = authorized_admin.post(f"/isha/sutras/{sutra_data()["project"]["name"]}/{sutra_data()["sutra"]["chapter"]}/{sutra_data()["sutra"]["number"]}/{entity_suffix}", json=bhashyam_data())
     assert response.status_code == status.HTTP_201_CREATED
     # Map client_type to the corresponding client instance
     clients = {"client": client, "authorized_client": authorized_client, "authorized_admin": authorized_admin,}
     test_client = clients[client_type]
-    response = test_client.get(f"/isha/sutras/{sutra_data()["project"]["name"]}/{sutra_data()["sutra"]["chapter"]}/{sutra_data()["sutra"]["number"]}/{entity_suffix}?lang={interpretation_data()["language"]}&phil={interpretation_data()["philosophy"]}")
+    response = test_client.get(f"/isha/sutras/{sutra_data()["project"]["name"]}/{sutra_data()["sutra"]["chapter"]}/{sutra_data()["sutra"]["number"]}/{entity_suffix}?lang={bhashyam_data()["language"]}&phil={bhashyam_data()["philosophy"]}")
     assert response.status_code == status.HTTP_200_OK
-    assert response.json() == {"id": 1, "text": interpretation_data()["text"], "language": interpretation_data()["language"], "philosophy": interpretation_data()["philosophy"]}
+    assert response.json() == {"id": 1, "text": bhashyam_data()["text"], "language": bhashyam_data()["language"], "philosophy": bhashyam_data()["philosophy"]}
 @pytest.mark.parametrize("client_type, expected_status",
     [
         ("client", status.HTTP_401_UNAUTHORIZED,),  # Unauthorized client should return 401
@@ -40,7 +40,7 @@ def test_get_interpretation(client_type, client, authorized_client, authorized_a
         ("authorized_admin", status.HTTP_201_CREATED,),  # Authorized admin should also return 201
     ],
 )
-def test_add_interpretation(client_type, expected_status, client, authorized_client, authorized_admin, project_data, sutra_data, interpretation_data,):
+def test_add_bhashyam(client_type, expected_status, client, authorized_client, authorized_admin, project_data, sutra_data, bhashyam_data,):
     response = authorized_admin.post("/projects/?name=test&description=testdesc", json=project_data())
     assert response.status_code == status.HTTP_201_CREATED
     response = authorized_admin.post("/isha/sutras/", json=sutra_data())
@@ -48,7 +48,7 @@ def test_add_interpretation(client_type, expected_status, client, authorized_cli
     # Map client_type to the corresponding client instance
     clients = {"client": client, "authorized_client": authorized_client, "authorized_admin": authorized_admin,}
     test_client = clients[client_type]
-    response = test_client.post(f"/isha/sutras/{sutra_data()["project"]["name"]}/{sutra_data()["sutra"]["chapter"]}/{sutra_data()["sutra"]["number"]}/{entity_suffix}", json=interpretation_data())
+    response = test_client.post(f"/isha/sutras/{sutra_data()["project"]["name"]}/{sutra_data()["sutra"]["chapter"]}/{sutra_data()["sutra"]["number"]}/{entity_suffix}", json=bhashyam_data())
     assert response.status_code == expected_status
 @pytest.mark.parametrize("client_type, expected_status",
     [
@@ -57,23 +57,23 @@ def test_add_interpretation(client_type, expected_status, client, authorized_cli
         ("authorized_admin", status.HTTP_202_ACCEPTED,),  # Authorized admin should also return 201
     ],
 )
-def test_update_interpretation(client_type, expected_status, client, authorized_client, authorized_admin, project_data, sutra_data, interpretation_data,):
+def test_update_bhashyam(client_type, expected_status, client, authorized_client, authorized_admin, project_data, sutra_data, bhashyam_data,):
     response = authorized_admin.post("/projects/?name=test&description=testdesc", json=project_data())
     assert response.status_code == status.HTTP_201_CREATED
     response = authorized_admin.post("/isha/sutras/", json=sutra_data())
     assert response.status_code == status.HTTP_201_CREATED
-    response = authorized_admin.post(f"/isha/sutras/{sutra_data()["project"]["name"]}/{sutra_data()["sutra"]["chapter"]}/{sutra_data()["sutra"]["number"]}/{entity_suffix}", json=interpretation_data())
+    response = authorized_admin.post(f"/isha/sutras/{sutra_data()["project"]["name"]}/{sutra_data()["sutra"]["chapter"]}/{sutra_data()["sutra"]["number"]}/{entity_suffix}", json=bhashyam_data())
     assert response.status_code == status.HTTP_201_CREATED
     # Map client_type to the corresponding client instance
     clients = {"client": client, "authorized_client": authorized_client, "authorized_admin": authorized_admin,}
     test_client = clients[client_type]
-    updated_interpretation = {"id":1, "language": "en","text": "Test interpretation text", "philosophy":"adv"}
-    response = test_client.put(f"/isha/sutras/{sutra_data()["project"]["name"]}/{sutra_data()["sutra"]["chapter"]}/{sutra_data()["sutra"]["number"]}/{entity_suffix}?lang={updated_interpretation["language"]}&phil={updated_interpretation["philosophy"]}", json=updated_interpretation)
+    updated_bhashyam = {"id":1, "language": "en","text": "Test bhashyam text", "philosophy":"adv"}
+    response = test_client.put(f"/isha/sutras/{sutra_data()["project"]["name"]}/{sutra_data()["sutra"]["chapter"]}/{sutra_data()["sutra"]["number"]}/{entity_suffix}?lang={updated_bhashyam["language"]}&phil={updated_bhashyam["philosophy"]}", json=updated_bhashyam)
     assert response.status_code == expected_status
     if response.status_code == status.HTTP_202_ACCEPTED:
-        response = test_client.get(f"/isha/sutras/{sutra_data()["project"]["name"]}/{sutra_data()["sutra"]["chapter"]}/{sutra_data()["sutra"]["number"]}/{entity_suffix}?lang={interpretation_data()["language"]}&phil={interpretation_data()["philosophy"]}",)
+        response = test_client.get(f"/isha/sutras/{sutra_data()["project"]["name"]}/{sutra_data()["sutra"]["chapter"]}/{sutra_data()["sutra"]["number"]}/{entity_suffix}?lang={bhashyam_data()["language"]}&phil={bhashyam_data()["philosophy"]}",)
         assert response.status_code == status.HTTP_200_OK
-        assert response.json() == updated_interpretation
+        assert response.json() == updated_bhashyam
 @pytest.mark.parametrize("client_type, expected_status",
     [
         ("client", status.HTTP_401_UNAUTHORIZED,),  # Unauthorized client should return 401
@@ -81,15 +81,15 @@ def test_update_interpretation(client_type, expected_status, client, authorized_
         ("authorized_admin", status.HTTP_200_OK,),  # Authorized admin should also return 201
     ],
 )
-def test_delete_interpretation(client_type, expected_status, client, authorized_client, authorized_admin, project_data, sutra_data, interpretation_data,):
+def test_delete_bhashyam(client_type, expected_status, client, authorized_client, authorized_admin, project_data, sutra_data, bhashyam_data,):
     response = authorized_admin.post("/projects/?name=test&description=testdesc", json=project_data())
     assert response.status_code == status.HTTP_201_CREATED
     response = authorized_admin.post("/isha/sutras/", json=sutra_data())
     assert response.status_code == status.HTTP_201_CREATED
-    response = authorized_admin.post(f"/isha/sutras/{sutra_data()["project"]["name"]}/{sutra_data()["sutra"]["chapter"]}/{sutra_data()["sutra"]["number"]}/{entity_suffix}", json=interpretation_data())
+    response = authorized_admin.post(f"/isha/sutras/{sutra_data()["project"]["name"]}/{sutra_data()["sutra"]["chapter"]}/{sutra_data()["sutra"]["number"]}/{entity_suffix}", json=bhashyam_data())
     assert response.status_code == status.HTTP_201_CREATED
 # Map client_type to the corresponding client instance
     clients = {"client": client, "authorized_client": authorized_client, "authorized_admin": authorized_admin,}
     test_client = clients[client_type]
-    response = test_client.delete(f"/isha/sutras/{sutra_data()["project"]["name"]}/{sutra_data()["sutra"]["chapter"]}/{sutra_data()["sutra"]["number"]}/{entity_suffix}?lang={interpretation_data()["language"]}&phil={interpretation_data()["philosophy"]}")
+    response = test_client.delete(f"/isha/sutras/{sutra_data()["project"]["name"]}/{sutra_data()["sutra"]["chapter"]}/{sutra_data()["sutra"]["number"]}/{entity_suffix}?lang={bhashyam_data()["language"]}&phil={bhashyam_data()["philosophy"]}")
     assert response.status_code == expected_status

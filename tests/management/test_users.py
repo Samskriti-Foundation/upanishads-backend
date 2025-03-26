@@ -17,10 +17,7 @@ def user_data():
 
 
 def test_create_user(authorized_admin, user_data):
-    response = authorized_admin.post(
-        "/users",
-        json=user_data(f"testuser@example.com"),
-    )
+    response = authorized_admin.post("/users", json=user_data(f"testuser@example.com"),)
     assert response.status_code == status.HTTP_201_CREATED
 
 

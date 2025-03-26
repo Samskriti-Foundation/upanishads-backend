@@ -6,7 +6,7 @@ from app import oauth2
 from app.database import get_db
 from app.errors import conflict_error_response, not_found_error_response
 from app.isha import models, schemas
-from app.utils import Language
+from app.utils import Language, Philosophy
 
 from .utils import get_sutra_or_404
 
@@ -29,7 +29,7 @@ def get_interpretation_or_404(sutra_id: int, language: Language, db: Session):
 
 @router.get("/{sutra_project}/{sutra_chapter}/{sutra_no}/interpretation", response_model=schemas.InterpretationOut)
 def get_interpretation(
-    sutra_project: str, sutra_chapter: int, sutra_no: int, lang: Language = Language.en, db: Session = Depends(get_db)
+    sutra_project: str, sutra_chapter: int, sutra_no: int, lang: Language = Language.en, phil: Philosophy = Philosophy.advaita, db: Session = Depends(get_db)
 ):
     sutra = get_sutra_or_404(sutra_project, sutra_chapter, sutra_no, db)
 
@@ -55,12 +55,13 @@ def add_interpretation(
         db.query(models.Interpretation)
         .filter(models.Interpretation.sutra_id == sutra.id)
         .filter(models.Interpretation.language == interpretation.language)
+        .filter(models.Interpretation.philosophy == interpretation.philosophy)
         .first()
     )
 
     if db_interpretation:
         conflict_error_response(
-            f"Interpretation for {sutra_project} sutra chapter {sutra_chapter} number {sutra_no} in language {interpretation.language} already exists!"
+            f"Interpretation for {sutra_project} sutra chapter {sutra_chapter} number {sutra_no} in language {interpretation.language} philosophy {interpretation.philosophy} already exists!"
         )
 
     new_interpretation = models.Interpretation(**interpretation.model_dump(), sutra_id=sutra.id)
@@ -75,10 +76,11 @@ def add_interpretation(
 @router.put("/{sutra_project}/{sutra_chapter}/{sutra_no}/interpretation", status_code=status.HTTP_204_NO_CONTENT)
 def update_interpretation(
     interpretation: schemas.InterpretationUpdate,
-    sutra_project: str='kena',
+    sutra_project: str='isha',
     sutra_chapter: int=0,
     sutra_no: int=0,
     lang: Language='en',
+    phil: Philosophy="adv",
     db: Session = Depends(get_db),
     current_user: app_models.User = Depends(oauth2.get_current_user),
 ):
@@ -100,6 +102,7 @@ def delete_interpretation(
     sutra_chapter: int,
     sutra_no: int,
     lang: Language,
+    phil: Philosophy,
     db: Session = Depends(get_db),
     current_admin: app_models.User = Depends(oauth2.get_current_admin),
 ):

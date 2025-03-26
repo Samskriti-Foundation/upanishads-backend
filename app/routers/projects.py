@@ -8,16 +8,22 @@ from app.oauth2 import get_current_admin, get_current_user
 
 router = APIRouter(prefix="/projects", tags=["Projects"])
 
+def get_project_by_id_or_404(project_id: str, db: Session):
+    project = (db.query(models.Project).filter(models.Project.id == project_id).first())
+    if not project:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Project ID {project_id} not found",
+        )
+    return project
 
-def get_project_or_404(project_id: int, db: Session):
-    project = (
-        db.query(models.Project).filter(models.Project.number == project_id).first()
-    )
+def get_project_or_404(project_name: str, db: Session):
+    project = (db.query(models.Project).filter(models.Project.name == project_name).first())
 
     if not project:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Project with ID {project_id} not found",
+            detail=f"Project {project_name} not found",
         )
 
     return project
@@ -29,13 +35,22 @@ def get_projects(db: Session = Depends(get_db)):
     return projects
 
 
-@router.get("/{project_id}")
+@router.get("_by_id/{project_id}")
 def get_project(project_id: int, db: Session = Depends(get_db)):
-    project = get_project_or_404(project_id, db)
+    project = get_project_by_id_or_404(project_id, db)
     return project
 
+@router.get("_by_name/{project_name}")
+def get_project_by_name(project_name: str, db: Session = Depends(get_db)):
+    project = db.query(models.Project).filter(models.Project.name == project_name).first()
+    if not project:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Project {project_name} not found",
+        )
+    return project
 
-@router.post("/")
+@router.post("/", status_code=status.HTTP_201_CREATED)
 def add_project(
     project: schemas.ProjectCreate,
     name : str, description: str,
@@ -56,13 +71,8 @@ def add_project(
     db.add(db_project)
     db.commit()
     db.refresh(db_project)
-    return db_project
-
-    return JSONResponse(
-        status_code=status.HTTP_201_CREATED,
-        content=f"Created project with ID {project.id}",
-    )
-
+    # return db_project
+    return JSONResponse(status_code=status.HTTP_201_CREATED, content=f"Created project {project.name}")
 
 @router.put("/{project_id}")
 def update_project(
@@ -72,3 +82,38 @@ def update_project(
     current_user: models.User = Depends(get_current_admin),
 ):
     project = get_project_or_404(project_id, db)
+
+@router.delete("_by_name/{project_name}")
+def delete_project(
+    project_name: str,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+
+    project = db.query(models.Project).filter(models.Project.name == project_name).first()
+    if not project:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Project {project_name} not found",
+        )
+    db.delete(project)
+    db.commit()
+    return JSONResponse(f"Project {project_name} removed")
+
+@router.delete("_by_id/{project_id}")
+def delete_project(
+    project_id: int,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+
+    project = db.query(models.Project).filter(models.Project.id == project_id).first()
+    if not project:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Project {project_id} not found",
+        )
+    db.delete(project)
+    db.commit()
+    return JSONResponse(f"Project {project_id} {project.name} removed")
+

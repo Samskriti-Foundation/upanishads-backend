@@ -12,7 +12,7 @@ from app.isha import models, schemas
 
 from .utils import get_sutra_or_404
 
-STATIC_AUDIO_DIR = Path("static/isha/")
+STATIC_AUDIO_DIR = Path("static/kena/")
 STATIC_AUDIO_DIR.mkdir(parents=True, exist_ok=True)
 
 router = APIRouter(prefix="/sutras", tags=["Audio"])
@@ -64,7 +64,7 @@ def create_audio(
     mode_dir = STATIC_AUDIO_DIR / mode
     mode_dir.mkdir(parents=True, exist_ok=True)
     file_extension = Path(file.filename or "").suffix
-    file_path = mode_dir / f"sutra_{sutra_no}{file_extension}"
+    file_path = mode_dir / f"chapter_{sutra_chapter}_sutra_{sutra_no}{file_extension}"
 
     with open(file_path, "wb") as buffer:
         buffer.write(file.file.read())
@@ -96,7 +96,7 @@ def update_audio(
     mode_dir = STATIC_AUDIO_DIR / mode
     mode_dir.mkdir(parents=True, exist_ok=True)
     file_extension = Path(file.filename or "").suffix
-    file_path = mode_dir / f"sutra_{sutra_no}{file_extension}"
+    file_path = mode_dir / f"chapter_{sutra_chapter}_sutra_{sutra_no}{file_extension}"
 
     with open(file_path, "wb") as buffer:
         buffer.write(file.file.read())

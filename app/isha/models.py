@@ -3,7 +3,6 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
 
-
 class Sutra(Base):
     __tablename__ = "sutras"
 
@@ -65,9 +64,7 @@ class Interpretation(Base):
     language: Mapped[str] = mapped_column(String(50), nullable=False)
     text: Mapped[str] = mapped_column(Text, nullable=False)
     philosophy: Mapped[str] = mapped_column(String(50), nullable=False)
-    sutra_id: Mapped[int] = mapped_column(
-        ForeignKey("sutras.id", ondelete="CASCADE")
-    )
+    sutra_id: Mapped[int] = mapped_column(ForeignKey("sutras.id", ondelete="CASCADE"))
 
     sutra: Mapped["Sutra"] = relationship("Sutra", back_populates="interpretations")
 
@@ -77,9 +74,7 @@ class Audio(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     file_path: Mapped[str] = mapped_column(String(500))  # Relative to static directory
     mode: Mapped[str] = mapped_column(String(10))
-    sutra_id: Mapped[int] = mapped_column(
-        ForeignKey("sutras.id", ondelete="CASCADE")
-    )
+    sutra_id: Mapped[int] = mapped_column(ForeignKey("sutras.id", ondelete="CASCADE"))
 
     sutra: Mapped["Sutra"] = relationship("Sutra", back_populates="audios")
 
@@ -91,9 +86,6 @@ class Bhashyam(Base):
     language: Mapped[str] = mapped_column(String(50), nullable=False)
     text: Mapped[str] = mapped_column(Text, nullable=False)
     philosophy: Mapped[str] = mapped_column(String(50), nullable=False)
-    sutra_id: Mapped[int] = mapped_column(
-        ForeignKey("sutras.id", ondelete="CASCADE")
-    )
+    sutra_id: Mapped[int] = mapped_column(ForeignKey("sutras.id", ondelete="CASCADE"))
 
     sutra: Mapped["Sutra"] = relationship("Sutra", back_populates="bhashyams")
-
