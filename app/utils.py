@@ -27,6 +27,7 @@ class Language(str, Enum):
     ta = "ta"  # Tamil
     te = "te"  # Telugu
     hi = "hi"  # Hindi
+    ma = "ma"  # Malayalam
 
 
 class Philosophy(str, Enum):
